@@ -9,6 +9,7 @@ var MAP = (function() {
 
     var months = [null, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     var abbrevMonths = [null, 'J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
+    var yearList = [1996, 1998, 2000, 2002, 2004, 2006, 2008, 2010, 2012, 2014, 2016];
     var model;
     var BASE_YR = 1996;
 
@@ -261,7 +262,7 @@ var MAP = (function() {
             });
         // verts
         baseLayer.selectAll('.verts')
-            .data([1996, 1998, 2000, 2002, 2004, 2006, 2008, 2010, 2012, 2014, 2016])
+            .data(yearList)
             .enter()
             .append('svg:line')
             .attr('class', 'verts')
@@ -279,7 +280,7 @@ var MAP = (function() {
             });
 
         baseLayer.selectAll('.year')
-            .data([1996, 1998, 2000, 2002, 2004, 2006, 2008, 2010, 2012, 2014, 2016])
+            .data(yearList)
             .enter()
             .append('svg:text')
             .attr('class', 'year')
@@ -301,9 +302,7 @@ var MAP = (function() {
                 [(totalYears * 60) + margin.left, box.h * 13]
             ])
             .on('brush', brushed)
-            .on('end', function() {
-                showZoom();
-            });
+            .on('end', showZoom);
 
         baseLayer.append('g')
             .attr('class', 'x brush')
@@ -415,9 +414,7 @@ var MAP = (function() {
                 var xPos = i * boxWidth + margin.left;
                 return xPos;
             })
-            .attr('y', function() {
-                return -7;
-            })
+            .attr('y', -7)
             .text(function(d) {
                 var yr = startYear;
                 var mon = (d + startMonth - 1) % 12 + 1;
@@ -451,9 +448,7 @@ var MAP = (function() {
             .attr('xlink:href', function(d) {
                 return srcPath + d.date + '/' + srcURL;
             })
-            .attr('target', function() {
-                return '_blank';
-            })
+            .attr('target', '_blank')
             .append('svg:rect')
             .attr('class', 'zoomMarks')
             .attr('height', box.h)
