@@ -18,7 +18,6 @@ var MAP = (function() {
     var svg;
     var baseLayer;
     var markerLayer;
-    var outlineLayer;
     var zoomLayer;
 
     var box = { w: 10, h: 20 };
@@ -30,6 +29,9 @@ var MAP = (function() {
     var filterList = {}; // dictionary for tooltip refs
     var startBrushPosn;
     var endBrushPosn;
+    var brush;
+    
+    var totalYears = 22;
 
     var colours = {
         '404': '#E21E26',
@@ -59,9 +61,7 @@ var MAP = (function() {
         'screenshot': 'Screenshots'
     };
 
-    var totalYears = 22;
-    var brush;
-    //var xScale = d3.scaleLinear().range([margin.left, (totalYears * 60 + margin.left)]);
+
 
 
     function dateToRange(date) {
@@ -70,8 +70,9 @@ var MAP = (function() {
         var day = parseInt(date.substr(6, 2));
 
         return { yr: yr, mn: mn, day: day };
-
     }
+
+
 
     function formatDate(date) {
         var temp = dateToRange(date);
@@ -84,6 +85,8 @@ var MAP = (function() {
         return String(temp.day) + ' ' + String(temp.mn) + ' ' + String(temp.yr + BASE_YR);
     }
 
+
+
     //sort in descending order
     function compare(a, b) {
         if (a.value > b.value)
@@ -95,7 +98,6 @@ var MAP = (function() {
 
 
 
-
     function initFilter() {
         // buttons
         baseLayer.selectAll('.filters')
@@ -103,9 +105,7 @@ var MAP = (function() {
             .enter()
             .append('svg:text')
             .attr('class', 'filters')
-            .attr('x', function(d, i) {
-                return 0;
-            })
+            .attr('x', 0)
             .attr('y', function(d, i) {
                 return box.h + i * (spacing.y - 9) + 620;
             })
@@ -118,10 +118,10 @@ var MAP = (function() {
                 d3.select(this).classed('filterOn', d.isFilter);
                 showZoom();
             })
-            .on('mouseover', function(d) {
+            .on('mouseover', function() {
                 d3.select(this).style('cursor', 'pointer');
             })
-            .on('mouseoutr', function(d) {
+            .on('mouseoutr', function() {
                 d3.select(this).style('cursor', 'default');
             });
     }
@@ -144,34 +144,25 @@ var MAP = (function() {
             .attr('width', box.w)
             .style('stroke-opacity', 0.5)
             .style('stroke-width', 0.5)
-            .style('fill', function(d, i) {
+            .style('fill', function(d) {
                 return colours[d.change];
             })
             .style('fill-opacity', 0.4)
             .style('stroke', strokeColour)
-            .attr('x', function(d, i) {
+            .attr('x', function(d) {
                 //1996 10 17 23 59 08
                 var time = dateToRange(d.date);
                 var xPos = time.yr * 60 + time.mn * 5 + margin.left;
                 return xPos;
             })
-            .attr('y', function(d, i) {
+            .attr('y', function(d) {
                 return lines[d.change] * spacing.y;
 
             })
-            .attr('id', function(d, i) {
+            .attr('id', function(d) {
                 return d.id;
             })
-            /*.on('click', function (d) {
-                //console.log(d);
-                var time = dateToRange(d.date);
-                //console.log(time.yr);
-                var url = srcPath + d.date +'/'+ srcURL;
-                console.log(this.id, url);
-                window.location = url;
-
-            })*/
-            .on('mouseover', function(d) {
+            .on('mouseover', function() {
                 d3.select(this).style('cursor', 'pointer');
                 d3.select(this).style('stroke-width', 2);
                 d3.select(this).style('stroke', highlightColour);
@@ -189,10 +180,8 @@ var MAP = (function() {
             .append('svg:text')
             .attr('class', 'title')
             .style('fill', '#333')
-            .attr('x', function(d, i) {
-                return margin.left - 10;
-            })
-            .attr('y', function(d, i) {
+            .attr('x', margin.left - 10)
+            .attr('y', function(d) {
                 return box.h + lines[d.name] * spacing.y;
             })
             .attr('text-anchor', 'end')
@@ -206,10 +195,8 @@ var MAP = (function() {
             .append('svg:text')
             .attr('class', 'monthly title')
             .style('fill', '#333')
-            .attr('x', function(d, i) {
-                return margin.left - 10;
-            })
-            .attr('y', function(d, i) {
+            .attr('x', margin.left - 10)
+            .attr('y', function(d) {
                 return 292 + box.h + lines[d.name] * spacing.y;
             })
             .attr('text-anchor', 'end')
@@ -263,15 +250,13 @@ var MAP = (function() {
             .style('stroke', '#eee')
             .style('stroke-opacity', 1)
             .style('stroke-width', 1)
-            .style('fill', function(d, i) {
-                return 0;
-            })
+            .style('fill', 0)
             .attr('x1', margin.left - 5)
             .attr('x2', totalYears * 60 + margin.left)
-            .attr('y1', function(d, i) {
+            .attr('y1', function(d) {
                 return box.h + lines[d.name] * spacing.y + (spacing.y - box.h) / 2;
             })
-            .attr('y2', function(d, i) {
+            .attr('y2', function(d) {
                 return box.h + lines[d.name] * spacing.y + (spacing.y - box.h) / 2;
             });
         // verts
@@ -283,9 +268,7 @@ var MAP = (function() {
             .style('stroke', '#eee')
             .style('stroke-opacity', 1)
             .style('stroke-width', 1)
-            .style('fill', function(d, i) {
-                return 0;
-            })
+            .style('fill', 0)
             .attr('y1', 0)
             .attr('y2', 8 * spacing.y)
             .attr('x1', function(d, i) {
@@ -304,7 +287,7 @@ var MAP = (function() {
             .attr('x', function(d, i) {
                 return i * 120 + margin.left + 4;
             })
-            .attr('y', function(d, i) {
+            .attr('y', function(d) {
                 return 20;
             })
             .text(function(d) {
@@ -413,9 +396,7 @@ var MAP = (function() {
                 .style('stroke', '#999')
                 .style('stroke-opacity', 0.5)
                 .style('stroke-width', 0.5)
-                .style('fill', function(d, i) {
-                    return '#fff';
-                })
+                .style('fill', '#fff')
                 .attr('y', 0)
                 .attr('x', function(d, i) {
                     var xPos = i * boxWidth + margin.left;
@@ -434,7 +415,7 @@ var MAP = (function() {
                 var xPos = i * boxWidth + margin.left;
                 return xPos;
             })
-            .attr('y', function(d, i) {
+            .attr('y', function() {
                 return -7;
             })
             .text(function(d) {
@@ -470,7 +451,7 @@ var MAP = (function() {
             .attr('xlink:href', function(d) {
                 return srcPath + d.date + '/' + srcURL;
             })
-            .attr('target', function(d) {
+            .attr('target', function() {
                 return '_blank';
             })
             .append('svg:rect')
@@ -479,10 +460,10 @@ var MAP = (function() {
             .attr('width', box.w)
             .style('stroke-opacity', 0.5)
             .style('stroke-width', 0.5)
-            .style('fill', function(d, i) {
+            .style('fill', function(d) {
                 return colours[d.change];
             })
-            .style('fill-opacity', function(d, i) {
+            .style('fill-opacity', function(d) {
                 var opacity = 0.7;
                 var why = d.why.split(',');
 
@@ -498,23 +479,22 @@ var MAP = (function() {
                 return opacity;
             })
             .style('stroke', strokeColour)
-            .attr('x', function(d, i) {
+            .attr('x', function(d) {
                 var time = dateToRange(d.date);
                 var xPos = (time.yr - startYear + BASE_YR) * (12 * boxWidth) + (time.mn - startMonth) * boxWidth + (time.day - 1) * boxWidth / 31 + margin.left;
                 return Math.round(xPos);
             })
-            .attr('y', function(d, i) {
+            .attr('y', function(d) {
                 return lines[d.change] * spacing.y;
             })
-            .attr('id', function(d, i) {
+            .attr('id', function(d) {
                 return d.id;
             })
             .on('mouseover', function(d, i) {
-                d3.select(this).style('cursor', 'pointer')
+                d3.select(this).style('cursor', 'pointer');
                 d3.select(this).style('stroke-width', 2);
                 d3.select(this).style('stroke', highlightColour);
 
-                var others = '';
                 var otherCount = 0;
                 //split 'why' into number list
                 var arr = d.why.split(',');
@@ -523,7 +503,7 @@ var MAP = (function() {
 
                 for (i in arr) {
                     if (filterList[arr[i]]) {
-                        list.push(filterList[arr[i]])
+                        list.push(filterList[arr[i]]);
                     } else {
                         otherCount++;
                     }
@@ -589,6 +569,7 @@ var MAP = (function() {
 
     function gotData(json) {
         var crawls = [];
+        var itm;
         model = json;
         model.titles = [];
 
@@ -598,13 +579,13 @@ var MAP = (function() {
         });
 
         //loop through changes for titles
-        for (var itm in json.change_counts) {
+        for (itm in json.change_counts) {
             model.titles.push({ name: itm, value: json.change_counts[itm] });
         }
 
         //loop through counts and sort in descending order (for filter)
         var idx = 0;
-        for (var itm in json.counts) {
+        for (itm in json.counts) {
             crawls.push({ index: 0, name: itm, value: json.counts[itm], isFilter: false });
         }
         crawls.sort(compare);
@@ -644,7 +625,6 @@ var MAP = (function() {
 
         baseLayer = svg.append('g').attr('class', 'baseLayer');
         markerLayer = svg.append('g').attr('class', 'markerLayer');
-        outlineLayer = svg.append('g').attr('class', 'outlineLayer');
         zoomLayer = svg.append('g').attr('class', 'zoomLayer').attr('id', 'zoomLayer')
             .attr('transform', 'translate(' + 0 + ',' + 300 + ')');
 
@@ -656,55 +636,11 @@ var MAP = (function() {
 
 
 
-    document.addEventListener('DOMContentLoaded', function(event) {
+    document.addEventListener('DOMContentLoaded', function() {
         init();
         loadData();
     });
 
-
-
-    function getTranslation(transform) {
-        // Create a dummy g for calculation purposes only. This will never
-        // be appended to the DOM and will be discarded once this function
-        // returns.
-        var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-
-        // Set the transform attribute to the provided string value.
-        g.setAttributeNS(null, 'transform', transform);
-
-        // consolidate the SVGTransformList containing all transformations
-        // to a single SVGTransform of type SVG_TRANSFORM_MATRIX and get
-        // its SVGMatrix.
-        var matrix = g.transform.baseVal.consolidate().matrix;
-
-        // As per definition values e and f are the ones for the translation.
-        return [matrix.e, matrix.f];
-    }
-
-
-
-    d3.selection.prototype.position = function() {
-        var el = this.node();
-        var elPos = el.getBoundingClientRect();
-        var vpPos = getVpPos(el);
-
-        function getVpPos(el) {
-            if (el.parentElement.tagName === 'svg') {
-                return el.parentElement.getBoundingClientRect();
-            }
-            return getVpPos(el.parentElement);
-        }
-
-        return {
-            top: elPos.top - vpPos.top,
-            left: elPos.left - vpPos.left,
-            width: elPos.width,
-            bottom: elPos.bottom - vpPos.top,
-            height: elPos.height,
-            right: elPos.right - vpPos.left
-        };
-
-    };
 
 
     var exports = {
