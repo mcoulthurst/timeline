@@ -11,7 +11,7 @@ var MAP = (function() {
     var abbrevMonths = [null, 'J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
     var yearList = [1996, 1998, 2000, 2002, 2004, 2006, 2008, 2010, 2012, 2014, 2016];
     var model;
-    var BASE_YR = 1996;
+    var BASE_YR = yearList[0];
 
     var width = 2000;
     var height = 1220;
@@ -61,7 +61,6 @@ var MAP = (function() {
         'revisit': 'Revisit',
         'screenshot': 'Screenshots'
     };
-
 
 
 
@@ -338,8 +337,7 @@ var MAP = (function() {
 
     function showZoom() {
         var totalWidth = totalYears * 60;
-        // chart range 1996 to 2018
-        // 22 years
+        // chart range 1996 to 2018: 22 years
 
         var startDate = Math.round(startBrushPosn * totalYears * 12);
         var endDate = Math.round(endBrushPosn * totalYears * 12);
@@ -382,9 +380,7 @@ var MAP = (function() {
         zoomLayer.selectAll('.monthHeading').remove();
         zoomLayer.selectAll('.zoomMarks').remove();
 
-
         if (numMonths < 36) {
-
             zoomLayer.selectAll('.months')
                 .data(data)
                 .enter()
@@ -402,7 +398,6 @@ var MAP = (function() {
                     return xPos;
                 });
         }
-
 
         zoomLayer.selectAll('.monthHeading')
             .data(data)
@@ -434,9 +429,6 @@ var MAP = (function() {
                 if (numMonths > 24) {
                     return months[mon];
                 }
-                /*if (numMonths>24){
-                    return abbrevMonths[mon] + ''  + yr.substr(2,2) ;
-                }*/
 
                 return months[mon] + ' ' + yr.substr(2, 2);
             });
@@ -522,7 +514,6 @@ var MAP = (function() {
                     offsetY = -79;
                 }
 
-                //get div#chart coords 0,85
                 var el = document.getElementById('zoomLayer');
                 var bounds = el.getBoundingClientRect();
                 var chartX = parseInt(bounds.x);
@@ -542,8 +533,7 @@ var MAP = (function() {
 
                 tooltip.html(
                     '<div class="heading">' + fullTitles[d.change] +
-                    '</div><div class="bolder">' + formatDate(d.date) +
-                    img +
+                    '</div><div class="bolder">' + formatDate(d.date) + img +
                     '</div><div class="filter">' + response + '</div>'
                 )
                     .style('left', xPos + 'px')
