@@ -1,0 +1,1 @@
+browser-sync start --port 3020 --server --files "*.html, *.js, js/*.js, css/*.css" --browser "firefox"
